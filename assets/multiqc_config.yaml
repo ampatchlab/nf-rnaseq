@@ -1,0 +1,38 @@
+module_order:
+    - fastqc:
+        name: 'FastQC (raw)'
+        anchor: 'fastqc-raw'
+        info: >
+            is a quality control tool for high throughput sequence data, written by Simon Andrews
+            at the Babraham Institute in Cambridge. This section of the report shows FastQC results
+            prior to adapter trimming.
+        target: 'FastQC'
+        path_filters:
+            - './fastqc-raw/*_fastqc.zip'
+    - cutadapt
+    - fastqc:
+        name: 'FastQC (trimmed)'
+        anchor: 'fastqc-trimmed'
+        info: >
+            is a quality control tool for high throughput sequence data, written by Simon Andrews
+            at the Babraham Institute in Cambridge. This section of the report shows FastQC results
+            after adapter trimming.
+        target: 'FastQC'
+        path_filters:
+            - './fastqc-trimmed/*_fastqc.zip'
+    - star
+    - picard
+    - rseqc
+    - rna_seqc
+    - rsem
+
+rseqc_sections:
+    - bam_stat
+    - gene_body_coverage
+    - infer_experiment
+    - inner_distance
+    - junction_annotation
+    - junction_saturation
+    - read_distribution
+    - read_duplication
+    - read_gc
