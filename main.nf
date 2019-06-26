@@ -49,6 +49,7 @@ log.info("Reference GTF file: ${params.gtf}")
 // log STAR genome generate params
 log.info("STAR size of the bins for genome storage: ${params.star_genome_chr_bin_n_bits}")
 log.info("STAR length of the SA pre-indexing string: ${params.star_genome_sa_index_n_bases}")
+log.info("STAR SJDB overhang: ${params.star_sjdb_overhang}")
 
 // log Cutadapt params
 log.info("Cutadapt R1 adapter: ${params.cutadapt_r1_adapter ?: null}")
@@ -187,7 +188,7 @@ process star_index {
         --genomeChrBinNbits "${params.star_genome_chr_bin_n_bits}" \\
         --genomeSAindexNbases "${params.star_genome_sa_index_n_bases}" \\
         --sjdbGTFfile "${ref_gtf}" \\
-        --sjdbOverhang 100
+        --sjdbOverhang "${params.star_sjdb_overhang}"
     """
 }
 
@@ -2123,6 +2124,8 @@ def usage() {
         --star_genome_sa_index_n_bases INT
             Length (bases) of the SA pre-indexing string [Default: ${defaults.star_genome_sa_index_n_bases}]
 
+        --star_sjdb_overhang INT
+            Length of the donor/acceptor sequence on each side of the junctions [Default: ${defaults.star_sjdb_overhang}]
 
     Cutadapt options:
 
@@ -2312,6 +2315,11 @@ def check_params() {
 
     if (!(params.star_genome_sa_index_n_bases.toString().isInteger())) {
         log.error("Unknown `--star_genome_sa_index_n_bases` entry: `${params.star_genome_sa_index_n_bases}`")
+        die()
+    }
+
+    if (!(params.star_sjdb_overhang.toString().isInteger())) {
+        log.error("Unknown `--star_sjdb_overhang` entry: `${params.star_sjdb_overhang}`")
         die()
     }
 

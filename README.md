@@ -50,6 +50,8 @@ STAR genome generate options:
     --star_genome_sa_index_n_bases INT
         Length (bases) of the SA pre-indexing string [Default: 14]
 
+    --star_sjdb_overhang INT
+        Length of the donor/acceptor sequence on each side of the junctions [Default: 100]
 
 Cutadapt options:
 
