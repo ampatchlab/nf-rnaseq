@@ -42,6 +42,15 @@ Reference genome options:
         Override the reference genome GTF with FILE [Default: null]
 
 
+STAR genome generate options:
+
+    --star_genome_chr_bin_n_bits INT
+        Size of the bins for genome storage [Default: 18]
+
+    --star_genome_sa_index_n_bases INT
+        Length (bases) of the SA pre-indexing string [Default: 14]
+
+
 Cutadapt options:
 
     --cutadapt_r1_adapter STR

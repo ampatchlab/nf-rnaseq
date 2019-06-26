@@ -46,6 +46,10 @@ log.info("Adapters to trim: ${params.adapters ?: null}")
 log.info("Reference FASTA file: ${params.fasta}")
 log.info("Reference GTF file: ${params.gtf}")
 
+// log STAR genome generate params
+log.info("STAR size of the bins for genome storage: ${params.star_genome_chr_bin_n_bits}")
+log.info("STAR length of the SA pre-indexing string: ${params.star_genome_sa_index_n_bases}")
+
 // log Cutadapt params
 log.info("Cutadapt R1 adapter: ${params.cutadapt_r1_adapter ?: null}")
 log.info("Cutadapt R2 adapter: ${params.cutadapt_r2_adapter ?: null}")
@@ -180,6 +184,8 @@ process star_index {
         --runMode genomeGenerate \\
         --genomeDir "${STAR}" \\
         --genomeFastaFiles "${ref_fasta}" \\
+        --genomeChrBinNbits "${params.star_genome_chr_bin_n_bits}" \\
+        --genomeSAindexNbases "${params.star_genome_sa_index_n_bases}" \\
         --sjdbGTFfile "${ref_gtf}" \\
         --sjdbOverhang 100
     """
@@ -2109,6 +2115,15 @@ def usage() {
             Override the reference genome GTF with FILE [Default: ${defaults.gtf ?: null}]
 
 
+    STAR genome generate options:
+
+        --star_genome_chr_bin_n_bits INT
+            Size of the bins for genome storage [Default: ${defaults.star_genome_chr_bin_n_bits}]
+
+        --star_genome_sa_index_n_bases INT
+            Length (bases) of the SA pre-indexing string [Default: ${defaults.star_genome_sa_index_n_bases}]
+
+
     Cutadapt options:
 
         --cutadapt_r1_adapter STR
@@ -2284,6 +2299,19 @@ def check_params() {
 
     if (!params.gtf) {
         log.error("A reference GTF file is required. Please use the `--gtf` option.")
+        die()
+    }
+
+
+    // STAR genome generate options
+
+    if (!(params.star_genome_chr_bin_n_bits.toString().isInteger())) {
+        log.error("Unknown `--star_genome_chr_bin_n_bits` entry: `${params.star_genome_chr_bin_n_bits}`")
+        die()
+    }
+
+    if (!(params.star_genome_sa_index_n_bases.toString().isInteger())) {
+        log.error("Unknown `--star_genome_sa_index_n_bases` entry: `${params.star_genome_sa_index_n_bases}`")
         die()
     }
 
