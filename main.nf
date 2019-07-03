@@ -79,15 +79,18 @@ log.info("RSEM CalcCI number of samples per CV: ${params.ci_num_samples_per_coun
 log.info("MultiQC config: ${params.multiqc_config}")
 
 // log output params
-log.info("Localized inputs directory: ${params.inputs}")
-log.info("Output directory: ${params.outdir}")
 log.info("Reference directory: ${params.refdir}")
+log.info("Output directory: ${params.outdir}")
 
 // log reports params
 log.info("Execution report: ${config.report.file}")
 log.info("Trace report: ${config.trace.file}")
 log.info("Timeline report: ${config.timeline.file}")
 log.info("Flowchart: ${config.dag.file}")
+
+// log AWS Batch params
+log.info("AWS Batch JobQueue: ${params.aws_queue}")
+log.info("AWS Region: ${params.aws_region}")
 
 validate_input_csv()
 
@@ -442,7 +445,7 @@ process twobitinfo {
 
         // files to stage
         def fq1 = params.paired_end ? file(row.fastq1) : file(row.fastq)
-        def fq2 = params.paired_end ? file(row.fastq2) : file('NO_FILE')
+        def fq2 = params.paired_end ? file(row.fastq2) : 'NO_FILE'
 
         // filenames to stage with
         def fq1_fn = params.paired_end ? "${rgid}.1.${get_fastq_extn(fq1)}" : "${rgid}.${get_fastq_extn(fq1)}"
@@ -2212,14 +2215,11 @@ def usage() {
 
     Output options:
 
-        --inputs DIR
-            Path where the input FASTQ files should be localized [Default: ${defaults.inputs}]
+        --refdir DIR
+            Path where the reference index files will be saved [Default: ${defaults.refdir}]
 
         --outdir DIR
             Path where the results will be saved [Default: ${defaults.outdir}]
-
-        --refdir DIR
-            Path where the reference index files will be saved [Default: ${defaults.refdir}]
 
 
     Report options
@@ -2235,6 +2235,15 @@ def usage() {
 
         --flowchart STR
             Name of the Nextflow flowchart to generate [Default: ${defaults.flowchart}]
+
+
+    AWS Batch options
+
+        --aws_queue STR
+            AWS Batch JobQueue definition [Default: ${defaults.aws_queue}]
+
+        --aws_region STR
+            AWS Region definition [Default: ${defaults.aws_region}]
 
 
     Standard options:

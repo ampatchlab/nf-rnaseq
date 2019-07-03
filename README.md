@@ -138,14 +138,11 @@ MultiQC options:
 
 Output options:
 
-    --inputs DIR
-        Path where the input FASTQ files should be localized [Default: ./inputs]
+    --refdir DIR
+        Path where the reference index files will be saved [Default: ./reference]
 
     --outdir DIR
         Path where the results will be saved [Default: ./results]
-
-    --refdir DIR
-        Path where the reference index files will be saved [Default: ./reference]
 
 
 Report options
@@ -161,6 +158,15 @@ Report options
 
     --flowchart STR
         Name of the Nextflow flowchart to generate [Default: ./reports/flowchart.png]
+
+
+AWS Batch options
+
+    --aws_queue STR
+        AWS Batch JobQueue definition [Default: false]
+
+    --aws_region STR
+        AWS Region definition [Default: false]
 
 
 Standard options:
