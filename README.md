@@ -15,6 +15,10 @@ Usage:
 
 Required arguments:
 
+    -profile STR
+        Nextflow configuration profile to use. Available profiles include:
+        'conda', 'docker', 'singularity' and 'awsbatch'
+
     --csv FILE
         Comma-separated list of sample and readgroup inputs
 
@@ -22,7 +26,22 @@ Required arguments:
         Reference genome name [Either: GRCh38, GRCm38; Default: null]
 
 
-Optional arguments:
+Optional Nextflow arguments:
+
+    -name STR
+        Assign a mnemonic name to the a pipeline run
+
+    -resume
+        Resume a failed run using cached results
+
+    -revision
+        Revision of the project to run
+
+    -work-dir DIR
+        Directory where intermediate result files are stored
+
+
+Optional pipeline arguments:
 
     --paired_end
         Expect entries for 'fastq1' and 'fastq2' in the input CSV
