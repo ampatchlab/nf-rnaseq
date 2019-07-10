@@ -38,9 +38,9 @@ log.info("Input csv: ${params.csv}")
 log.info("Reference genome: ${params.genome ?: null}")
 
 // log optional arguments
-log.info("Paired-end readgroups: ${params.paired_end ? "true" : "false"}")
+log.info("Paired-end readgroups: ${String.valueOf(params.paired_end)}")
 log.info("ReadGroup ID separator: ${params.rgid_sep}")
-log.info("Adapters to trim: ${params.adapters ?: null}")
+log.info("Adapters to trim: ${params.adapters}")
 
 // log reference genome params
 log.info("Reference FASTA file: ${params.fasta}")
