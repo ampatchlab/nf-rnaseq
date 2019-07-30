@@ -2093,7 +2093,7 @@ def usage() {
 
         -profile STR
             Nextflow configuration profile to use. Available profiles include:
-            'conda', 'docker', 'singularity' and 'awsbatch'
+            'awsbatch', 'conda', 'docker' and 'singularity'
 
         --csv FILE
             Comma-separated list of sample and readgroup inputs
