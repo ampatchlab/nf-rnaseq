@@ -83,10 +83,10 @@ log.info("Reference directory: ${params.refdir}")
 log.info("Output directory: ${params.outdir}")
 
 // log reports params
-log.info("Execution report: ${config.report.file}")
-log.info("Trace report: ${config.trace.file}")
-log.info("Timeline report: ${config.timeline.file}")
-log.info("Flowchart: ${config.dag.file}")
+log.info("Execution report: ${params.execution_report}")
+log.info("Trace report: ${params.trace_report}")
+log.info("Timeline report: ${params.timeline_report}")
+log.info("Flowchart: ${params.flowchart}")
 
 // log AWS Batch params
 log.info("AWS Batch JobQueue: ${params.aws_queue}")
