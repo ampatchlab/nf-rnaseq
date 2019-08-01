@@ -53,7 +53,7 @@ Reference genome options:
 Sequencing adapter options:
 
     --adapters STR
-        The adapters to trim [Either: TruSeq, NONE; Default: TruSeq]
+        The adapters to trim [Either: TruSeq, BGISeq, NONE; Default: TruSeq]
 
     --r1_adapter STR
         Override the sequence of the R1 adapter with STR [Default: null]
