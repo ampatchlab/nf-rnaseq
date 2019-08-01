@@ -1065,8 +1065,6 @@ process infer_strandedness {
 
     label 'python'
 
-    publishDir "${params.outdir}/Strandedness/samples", mode: 'copy'
-
     input:
     set sample, file(inferred_experiment) from strandedness_inputs
 
@@ -1141,13 +1139,13 @@ process summarize_strandedness {
 
     label 'python'
 
-    publishDir "${params.outdir}/Strandedness", mode: 'copy'
+    publishDir params.outdir, mode: 'copy'
 
     input:
     file 'samples/*' from strandedness_summary.collect()
 
     output:
-    file 'summary.tsv'
+    file 'strandedness.tsv'
 
     """
     #!/usr/bin/env python3
@@ -1160,7 +1158,7 @@ process summarize_strandedness {
         with open("samples/{}".format(f), 'r') as infile:
             samples[sample] = infile.readlines().pop()
 
-    with open('summary.tsv', 'w') as outfile:
+    with open('strandedness.tsv', 'w') as outfile:
         writer = csv.writer(outfile, delimiter='\\t', lineterminator='\\n')
         writer.writerow(['sample', 'strandedness'])
         writer.writerows([s, samples[s]] for s in sorted(samples))
