@@ -483,7 +483,7 @@ process fastqc_raw {
 
     label 'fastqc'
 
-    publishDir "${params.outdir}/FastQC/${rgid}/raw"
+    publishDir "${params.outdir}/FastQC/${rgid}/raw", mode: 'copy'
 
     input:
     set sample, rgid from fastqc_raw_rgids
@@ -517,7 +517,7 @@ process cutadapt {
 
     label 'cutadapt'
 
-    publishDir "${params.outdir}/Cutadapt/${rgid}"
+    publishDir "${params.outdir}/Cutadapt/${rgid}", mode: 'copy'
 
     input:
     set sample, rgid from cutadapt_rgids
@@ -572,7 +572,7 @@ process fastqc_trimmed {
 
     label 'fastqc'
 
-    publishDir "${params.outdir}/FastQC/${rgid}/trimmed"
+    publishDir "${params.outdir}/FastQC/${rgid}/trimmed", mode: 'copy'
 
     input:
     set rgid, file(fastqs) from fastqc_trimmed_inputs
@@ -624,7 +624,7 @@ process star {
 
     label 'star'
 
-    publishDir "${params.outdir}/STAR/${sample}"
+    publishDir "${params.outdir}/STAR/${sample}", mode: 'copy'
 
     input:
     set sample, rgids, file(fastqs) from star_inputs
@@ -694,7 +694,7 @@ process samtools_index {
 
     label 'samtools'
 
-    publishDir "${params.outdir}/STAR/${sample}"
+    publishDir "${params.outdir}/STAR/${sample}", mode: 'copy'
 
     input:
     set sample, file(bam) from star_csorted_bam_files
@@ -716,7 +716,7 @@ process mark_duplicates {
 
     label 'picard'
 
-    publishDir "${params.outdir}/MarkDuplicates/${sample}", saveAs: { fn ->
+    publishDir "${params.outdir}/MarkDuplicates/${sample}", mode: 'copy', saveAs: { fn ->
         fn.endsWith(".bai") ? "${sample}.bam.bai" : "${fn}"
     }
 
@@ -767,7 +767,7 @@ process bam_stat {
 
     label 'rseqc'
 
-    publishDir "${params.outdir}/RSeQC/bam_stat"
+    publishDir "${params.outdir}/RSeQC/bam_stat", mode: 'copy'
 
     input:
     set sample, file(bam), file("${bam}.bai") from rseqc_bam_stat_inputs
@@ -790,7 +790,7 @@ process gene_body_coverage {
 
     label 'rseqc'
 
-    publishDir "${params.outdir}/RSeQC/gene_body_coverage"
+    publishDir "${params.outdir}/RSeQC/gene_body_coverage", mode: 'copy'
 
     input:
     set sample, file(bam), file("${bam}.bai") from rseqc_gene_body_coverage_inputs
@@ -813,7 +813,7 @@ process infer_experiment {
 
     label 'rseqc'
 
-    publishDir "${params.outdir}/RSeQC/infer_experiment"
+    publishDir "${params.outdir}/RSeQC/infer_experiment", mode: 'copy'
 
     input:
     set sample, file(bam), file("${bam}.bai") from rseqc_infer_experiment_inputs
@@ -837,7 +837,7 @@ process inner_distance {
 
     label 'rseqc'
 
-    publishDir "${params.outdir}/RSeQC/inner_distance"
+    publishDir "${params.outdir}/RSeQC/inner_distance", mode: 'copy'
 
     input:
     set sample, file(bam), file("${bam}.bai") from rseqc_inner_distance_inputs
@@ -860,7 +860,7 @@ process junction_annotation {
 
     label 'rseqc'
 
-    publishDir "${params.outdir}/RSeQC/junction_annotation"
+    publishDir "${params.outdir}/RSeQC/junction_annotation", mode: 'copy'
 
     input:
     set sample, file(bam), file("${bam}.bai") from rseqc_junction_annotation_inputs
@@ -883,7 +883,7 @@ process junction_saturation {
 
     label 'rseqc'
 
-    publishDir "${params.outdir}/RSeQC/junction_saturation"
+    publishDir "${params.outdir}/RSeQC/junction_saturation", mode: 'copy'
 
     input:
     set sample, file(bam), file("${bam}.bai") from rseqc_junction_saturation_inputs
@@ -906,7 +906,7 @@ process read_distribution {
 
     label 'rseqc'
 
-    publishDir "${params.outdir}/RSeQC/read_distribution"
+    publishDir "${params.outdir}/RSeQC/read_distribution", mode: 'copy'
 
     input:
     set sample, file(bam), file("${bam}.bai") from rseqc_read_distribution_inputs
@@ -929,7 +929,7 @@ process read_duplication {
 
     label 'rseqc'
 
-    publishDir "${params.outdir}/RSeQC/read_duplication"
+    publishDir "${params.outdir}/RSeQC/read_duplication", mode: 'copy'
 
     input:
     set sample, file(bam), file("${bam}.bai") from rseqc_read_duplication_inputs
@@ -952,7 +952,7 @@ process read_gc {
 
     label 'rseqc'
 
-    publishDir "${params.outdir}/RSeQC/read_gc"
+    publishDir "${params.outdir}/RSeQC/read_gc", mode: 'copy'
 
     input:
     set sample, file(bam), file("${bam}.bai") from rseqc_read_gc_inputs
@@ -975,7 +975,7 @@ process rna_seqc {
 
     label 'rna_seqc'
 
-    publishDir "${params.outdir}/RNA-SeQC/samples"
+    publishDir "${params.outdir}/RNA-SeQC/samples", mode: 'copy'
 
     input:
     set sample, file(bam), file("${bam}.bai") from rnaseqc_inputs
@@ -1022,7 +1022,7 @@ process rna_seqc_summary {
 
     label 'python'
 
-    publishDir "${params.outdir}/RNA-SeQC"
+    publishDir "${params.outdir}/RNA-SeQC", mode: 'copy'
 
     input:
     file 'samples/*' from rnaseqc_summary_inputs.collect()
@@ -1065,7 +1065,7 @@ process infer_strandedness {
 
     label 'python'
 
-    publishDir "${params.outdir}/Strandedness/samples"
+    publishDir "${params.outdir}/Strandedness/samples", mode: 'copy'
 
     input:
     set sample, file(inferred_experiment) from strandedness_inputs
@@ -1141,7 +1141,7 @@ process summarize_strandedness {
 
     label 'python'
 
-    publishDir "${params.outdir}/Strandedness"
+    publishDir "${params.outdir}/Strandedness", mode: 'copy'
 
     input:
     file 'samples/*' from strandedness_summary.collect()
@@ -1184,7 +1184,7 @@ star_transcriptome_alignments
 process rsem_mparams {
     tag { sample }
 
-    publishDir "${params.outdir}/RSEM/samples/${sample}/stats"
+    publishDir "${params.outdir}/RSEM/samples/${sample}/stats", mode: 'copy'
 
     input:
     set sample, strandedness from rsem_strandedness
@@ -1226,8 +1226,8 @@ process rsem_parse_alignments {
 
     label 'rsem'
 
-    publishDir "${params.outdir}/RSEM/samples/${sample}/reads", pattern: '*.fq'
-    publishDir "${params.outdir}/RSEM/samples/${sample}/stats", pattern: '*.{cnt,data,omit}'
+    publishDir "${params.outdir}/RSEM/samples/${sample}/reads", pattern: '*.fq', mode: 'copy'
+    publishDir "${params.outdir}/RSEM/samples/${sample}/stats", pattern: '*.{cnt,data,omit}', mode: 'copy'
 
     input:
     set sample, file(bam) from rsem_transcriptome_alignments
@@ -1261,7 +1261,7 @@ process rsem_build_read_index {
 
     label 'rsem'
 
-    publishDir "${params.outdir}/RSEM/samples/${sample}/reads"
+    publishDir "${params.outdir}/RSEM/samples/${sample}/reads", mode: 'copy'
 
     input:
     set sample, file(fastqs) from rsem_alignable_reads
@@ -1317,8 +1317,8 @@ process rsem_run_em {
 
     label 'rsem'
 
-    publishDir "${params.outdir}/RSEM/samples/${sample}/stats", pattern: '*.{model,theta,ofg}'
-    publishDir "${params.outdir}/RSEM/samples/${sample}/bam", pattern: '*.bam'
+    publishDir "${params.outdir}/RSEM/samples/${sample}/stats", pattern: '*.{model,theta,ofg}', mode: 'copy'
+    publishDir "${params.outdir}/RSEM/samples/${sample}/bam", pattern: '*.bam', mode: 'copy'
 
     input:
     set sample, file(bam), file("*") from rsem_em_inputs
@@ -1534,7 +1534,7 @@ process annotate_gene_results {
 
     label 'python'
 
-    publishDir "${params.outdir}/RSEM/samples/${sample}/counts"
+    publishDir "${params.outdir}/RSEM/samples/${sample}/counts", mode: 'copy'
 
     input:
     set sample, file(results) from rsem_gene_results
@@ -1591,7 +1591,7 @@ process annotate_isoform_results {
 
     label 'python'
 
-    publishDir "${params.outdir}/RSEM/samples/${sample}/counts"
+    publishDir "${params.outdir}/RSEM/samples/${sample}/counts", mode: 'copy'
 
     input:
     set sample, file(results) from rsem_isoform_results
@@ -1650,7 +1650,7 @@ process summarize_genes {
 
     label 'python'
 
-    publishDir "${params.outdir}/RSEM"
+    publishDir "${params.outdir}/RSEM", mode: 'copy'
 
     input:
     file 'samples/*' from annotated_gene_results.collect()
@@ -1722,7 +1722,7 @@ process summarize_isoforms {
 
     label 'python'
 
-    publishDir "${params.outdir}/RSEM"
+    publishDir "${params.outdir}/RSEM", mode: 'copy'
 
     input:
     file 'samples/*' from annotated_isoform_results.collect()
@@ -1809,7 +1809,7 @@ process rsem_tbam2gbam {
 
     label 'rsem'
 
-    publishDir "${params.outdir}/RSEM/samples/${sample}/bam"
+    publishDir "${params.outdir}/RSEM/samples/${sample}/bam", mode: 'copy'
 
     input:
     set sample, file(transcript_bam) from rsem_tbam2gbam_inputs
@@ -1836,7 +1836,7 @@ process rsem_get_unique {
 
     label 'rsem'
 
-    publishDir "${params.outdir}/RSEM/samples/${sample}/bam"
+    publishDir "${params.outdir}/RSEM/samples/${sample}/bam", mode: 'copy'
 
     input:
     set sample, file(transcript_bam) from rsem_get_unique_inputs
@@ -1873,7 +1873,7 @@ process rsem_sort_bam {
 
     label 'samtools'
 
-    publishDir "${params.outdir}/RSEM/samples/${sample}/bam"
+    publishDir "${params.outdir}/RSEM/samples/${sample}/bam", mode: 'copy'
 
     input:
     set sample, tag, file(bam) from rsem_bams
@@ -1899,7 +1899,7 @@ process rsem_index_bam {
 
     label 'samtools'
 
-    publishDir "${params.outdir}/RSEM/samples/${sample}/bam"
+    publishDir "${params.outdir}/RSEM/samples/${sample}/bam", mode: 'copy'
 
     input:
     set sample, tag, file(bam) from sorted_bams
@@ -1938,7 +1938,7 @@ process rsem_bam2wig {
 
     label 'rsem'
 
-    publishDir "${params.outdir}/RSEM/samples/${sample}/wig"
+    publishDir "${params.outdir}/RSEM/samples/${sample}/wig", mode: 'copy'
 
     input:
     set sample, tag, file(bam_files) from rsem_bam2wig_inputs
@@ -1992,7 +1992,7 @@ process rsem_wig2bigwig {
 
     label 'ucsc_wigtobigwig'
 
-    publishDir "${params.outdir}/RSEM/samples/${sample}/wig"
+    publishDir "${params.outdir}/RSEM/samples/${sample}/wig", mode: 'copy'
 
     input:
     set tag, sample, file(wig), file(chrom_sizes) from wig2bigwig_inputs
@@ -2017,7 +2017,7 @@ process rsem_bam2readdepth {
 
     label 'rsem'
 
-    publishDir "${params.outdir}/RSEM/samples/${sample}/readdepth"
+    publishDir "${params.outdir}/RSEM/samples/${sample}/readdepth", mode: 'copy'
 
     input:
     set sample, tag, file(bam_files) from rsem_bam2readdepth_inputs
@@ -2043,7 +2043,7 @@ process multiqc {
 
     label 'multiqc'
 
-    publishDir "${params.outdir}/MultiQC"
+    publishDir "${params.outdir}/MultiQC", mode: 'copy'
 
     input:
     file config from multiqc_cfg
