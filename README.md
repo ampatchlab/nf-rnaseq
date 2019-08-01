@@ -10,50 +10,38 @@ RNA-Seq nextflow pipeline
 
 ```
 Usage:
-    nextflow run ampatchlab/nf-rnaseq [options]
+    nextflow run -profile <profile> -revision <revision> ampatchlab/nf-rnaseq [options]
 
 
-Required arguments:
+Nextflow execution options:
 
     -profile STR
         Nextflow configuration profile to use. Available profiles include:
         'awsbatch', 'conda', 'docker' and 'singularity'
 
-    --csv FILE
-        Comma-separated list of sample and readgroup inputs
-
-    --genome STR
-        Reference genome name [Either: GRCh38, GRCm38; Default: null]
-
-
-Optional Nextflow arguments:
-
-    -name STR
-        Assign a mnemonic name to the a pipeline run
-
-    -resume
-        Resume a failed run using cached results
-
-    -revision
-        Revision of the project to run
+    -revision STR
+        Git branch/tag (version) of this workflow to use
 
     -work-dir DIR
         Directory where intermediate result files are stored
 
+    -help
+        Show additional execution options and exit
 
-Optional pipeline arguments:
+
+Input options:
+
+    --csv FILE
+        Comma-separated list of sample and readgroup inputs
 
     --paired_end
         Expect entries for 'fastq1' and 'fastq2' in the input CSV
 
-    --rgid_sep STR
-        The separator used to create unique input readgroup IDs [Default: .]
-
-    --adapters STR
-        The adapters to trim [Either: TruSeq, null; Default: TruSeq]
-
 
 Reference genome options:
+
+    --genome STR
+        Reference genome name [Either: GRCh38, GRCm38; Default: GRCh38]
 
     --fasta FILE
         Override the reference genome FASTA with FILE [Default: null]
@@ -62,6 +50,42 @@ Reference genome options:
         Override the reference genome GTF with FILE [Default: null]
 
 
+Sequencing adapter options:
+
+    --adapters STR
+        The adapters to trim [Either: TruSeq, NONE; Default: TruSeq]
+
+    --r1_adapter STR
+        Override the sequence of the R1 adapter with STR [Default: null]
+
+    --r2_adapter STR
+        Override the sequence of the R2 adapter with STR [Default: null]
+
+
+Output options:
+
+    --refdir DIR
+        Path where the reference index files will be saved [Default: ./reference]
+
+    --outdir DIR
+        Path where the results will be saved [Default: ./results]
+
+
+Standard options:
+
+    --advanced
+        Show advanced usage and exit
+
+    --help
+        Show this message and exit
+
+    --version
+        Show the pipeline version and exit
+```
+
+## Advanced options
+
+```
 STAR genome generate options:
 
     --star_genome_chr_bin_n_bits INT
@@ -73,13 +97,8 @@ STAR genome generate options:
     --star_sjdb_overhang INT
         Length of the donor/acceptor sequence on each side of the junctions [Default: 100]
 
+
 Cutadapt options:
-
-    --cutadapt_r1_adapter STR
-        Sequence of the R1 adapter [Default: AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC]
-
-    --cutadapt_r2_adapter STR
-        Sequence of the R2 adapter [Default: AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT]
 
     --cutadapt_base_qual_cutoff [INT,]INT
         Trim low-quality bases from each read [Default: 20]
@@ -88,7 +107,7 @@ Cutadapt options:
         Discard reads shorter than INT [Default: 20]
 
 
-RSEM mparams:
+RSEM mparams options:
 
     --rsem_fragment_length_min INT
         Minimum read/insert length allowed [default: 1]
@@ -156,15 +175,6 @@ MultiQC options:
         MultiQC YAML config file [Default: [:]/assets/multiqc_config.yaml]
 
 
-Output options:
-
-    --refdir DIR
-        Path where the reference index files will be saved [Default: ./reference]
-
-    --outdir DIR
-        Path where the results will be saved [Default: ./results]
-
-
 Report options
 
     --execution_report STR
@@ -187,15 +197,6 @@ AWS Batch options
 
     --aws_region STR
         AWS Region definition [Default: false]
-
-
-Standard options:
-
-    --help
-        Show this message and exit
-
-    --version
-        Show the pipeline version and exit
 ```
 
 ## Inputs

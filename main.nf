@@ -33,31 +33,48 @@ defaults = parsed_config.params
 check_params()
 
 
-// log required arguments
+/*
+ * Log workflow options
+ */
+
+// Nextflow exectution options
+log.info("Config profile: ${workflow.profile}")
+log.info("Workflow revision: ${workflow.revision}")
+log.info("Workflow work-dir: ${workflow.workDir}")
+
+// Input options
 log.info("Input csv: ${params.csv}")
-log.info("Reference genome: ${params.genome ?: null}")
-
-// log optional arguments
 log.info("Paired-end readgroups: ${String.valueOf(params.paired_end)}")
-log.info("ReadGroup ID separator: ${params.rgid_sep}")
-log.info("Adapters to trim: ${params.adapters}")
 
-// log reference genome params
+// Reference genome options
+log.info("Reference genome: ${params.genome}")
 log.info("Reference FASTA file: ${params.fasta}")
 log.info("Reference GTF file: ${params.gtf}")
 
-// log STAR genome generate params
+// Sequencing adapter options
+log.info("Adapters to trim: ${params.adapters}")
+log.info("R1 adapter: ${params.r1_adapter}")
+log.info("R2 adapter: ${params.r2_adapter}")
+
+// Output options
+log.info("Reference directory: ${params.refdir}")
+log.info("Output directory: ${params.outdir}")
+
+
+/*
+ * Log advanced options
+ */
+
+// STAR genome generate options
 log.info("STAR size of the bins for genome storage: ${params.star_genome_chr_bin_n_bits}")
 log.info("STAR length of the SA pre-indexing string: ${params.star_genome_sa_index_n_bases}")
 log.info("STAR SJDB overhang: ${params.star_sjdb_overhang}")
 
-// log Cutadapt params
-log.info("Cutadapt R1 adapter: ${params.cutadapt_r1_adapter ?: null}")
-log.info("Cutadapt R2 adapter: ${params.cutadapt_r2_adapter ?: null}")
+// Cutadapt options
 log.info("Cutadapt base quality cutoff: ${params.cutadapt_base_qual_cutoff}")
 log.info("Cutadapt min read length: ${params.cutadapt_min_read_length}")
 
-// log RSEM mparams
+// RSEM mparams options
 log.info("RSEM fragment length min: ${params.rsem_fragment_length_min}")
 log.info("RSEM fragment length max: ${params.rsem_fragment_length_max}")
 log.info("RSEM fragment length mean: ${params.rsem_fragment_length_mean}")
@@ -66,46 +83,45 @@ log.info("RSEM estimate RSPD: ${params.rsem_estimate_rspd}")
 log.info("RSEM number of RSPD bins: ${params.rsem_num_rspd_bins}")
 log.info("RSEM seed length: ${params.rsem_seed_length}")
 
-// log RSEM Gibbs params
+// RSEM Gibbs options
 log.info("RSEM Gibbs burn-in: ${params.gibbs_burnin}")
 log.info("RSEM Gibbs number of samples: ${params.gibbs_num_samples}")
 log.info("RSEM Gibbs sampling gap: ${params.gibbs_sampling_gap}")
 
-// log RSEM CalcCI params
+// RSEM CalcCI options
 log.info("RSEM CalcCI credibility level: ${params.ci_credibility_level}")
 log.info("RSEM CalcCI number of samples per CV: ${params.ci_num_samples_per_count_vector}")
 
-// log MultiQC params
+// MultiQC options
 log.info("MultiQC config: ${params.multiqc_config}")
 
-// log output params
-log.info("Reference directory: ${params.refdir}")
-log.info("Output directory: ${params.outdir}")
-
-// log reports params
+// Reports options
 log.info("Execution report: ${params.execution_report}")
 log.info("Trace report: ${params.trace_report}")
 log.info("Timeline report: ${params.timeline_report}")
 log.info("Flowchart: ${params.flowchart}")
 
-// log AWS Batch params
+// AWS Batch options
 log.info("AWS Batch JobQueue: ${params.aws_queue}")
 log.info("AWS Region: ${params.aws_region}")
+
+
+/*
+ * Validate input readgroups
+ */
 
 validate_input_csv()
 
 
-// input files
+/*
+ * File placeholders
+ */
+
 csv_file = file(params.csv)
 fasta_file = file(params.fasta)
 gtf_file = file(params.gtf)
 
-// asset files
 multiqc_cfg = file(params.multiqc_config)
-
-// reference directories
-STAR = params.genome ?: 'STAR'
-RSEM = params.genome ?: 'RSEM'
 
 
 /*
@@ -179,14 +195,14 @@ process star_index {
     file ref_gtf
 
     output:
-    file "${STAR}" into star_index
+    file "${params.genome}" into star_index
 
     """
-    mkdir "${STAR}"
+    mkdir "${params.genome}"
     STAR \\
         --runThreadN "${task.cpus}" \\
         --runMode genomeGenerate \\
-        --genomeDir "${STAR}" \\
+        --genomeDir "${params.genome}" \\
         --genomeFastaFiles "${ref_fasta}" \\
         --genomeChrBinNbits "${params.star_genome_chr_bin_n_bits}" \\
         --genomeSAindexNbases "${params.star_genome_sa_index_n_bases}" \\
@@ -297,12 +313,12 @@ process rsem_extract_reference_transcripts {
     file ref_fasta
 
     output:
-    file "${RSEM}.{grp,ti,chrlist}" into rsem_index_files
-    file "${RSEM}.transcripts.fa" into rsem_transcripts_fasta
+    file "${params.genome}.{grp,ti,chrlist}" into rsem_index_files
+    file "${params.genome}.transcripts.fa" into rsem_transcripts_fasta
 
     """
     rsem-extract-reference-transcripts \\
-        "${RSEM}" \\
+        "${params.genome}" \\
         0 \\
         "${ref_gtf}" \\
         None \\
@@ -324,15 +340,15 @@ process rsem_preref {
     file rsem_transcripts_fasta
 
     output:
-    file "${RSEM}.seq" into rsem_seq_index
-    file "${RSEM}.idx.fa"
-    file "${RSEM}.n2g.idx.fa"
+    file "${params.genome}.seq" into rsem_seq_index
+    file "${params.genome}.idx.fa"
+    file "${params.genome}.n2g.idx.fa"
 
     """
     rsem-preref \\
         "${rsem_transcripts_fasta}" \\
         1 \\
-        "${RSEM}"
+        "${params.genome}"
     """
 }
 
@@ -513,12 +529,15 @@ process cutadapt {
     file "*.log" into cutadapt_logs
 
     script:
+    def r1_adapter = params.r1_adapter != 'NO_R1_ADAPTER' ? "-a ${params.r1_adapter}" : ""
+    def r2_adapter = params.r2_adapter != 'NO_R2_ADAPTER' ? "-A ${params.r2_adapter}" : ""
+
     if (params.paired_end) {
 
         """
         cutadapt \\
-            -a "${params.cutadapt_r1_adapter}" \\
-            -A "${params.cutadapt_r2_adapter}" \\
+            "${r1_adapter}" \\
+            "${r2_adapter}" \\
             -q "${params.cutadapt_base_qual_cutoff}" \\
             -m "${params.cutadapt_min_read_length}" \\
             --trim-n \\
@@ -533,7 +552,7 @@ process cutadapt {
 
         """
         cutadapt \\
-            -a "${params.cutadapt_r1_adapter}" \\
+            "${r1_adapter}" \\
             -q "${params.cutadapt_base_qual_cutoff}" \\
             -m "${params.cutadapt_min_read_length}" \\
             --trim-n \\
@@ -1212,7 +1231,7 @@ process rsem_parse_alignments {
 
     input:
     set sample, file(bam) from rsem_transcriptome_alignments
-    file "${RSEM}/*" from rsem_index_files.mix(rsem_seq_index).collect()
+    file "${params.genome}/*" from rsem_index_files.mix(rsem_seq_index).collect()
 
     output:
     set sample, file("*_alignable{,_1,_2}.fq") into rsem_alignable_reads
@@ -1225,7 +1244,7 @@ process rsem_parse_alignments {
 
     """
     rsem-parse-alignments \\
-        "${RSEM}/${RSEM}" \\
+        "${params.genome}/${params.genome}" \\
         "${sample}" \\
         "${sample}" \\
         "${bam}" \\
@@ -1303,7 +1322,7 @@ process rsem_run_em {
 
     input:
     set sample, file(bam), file("*") from rsem_em_inputs
-    file "${RSEM}/*" from rsem_index_files.mix(rsem_seq_index).collect()
+    file "${params.genome}/*" from rsem_index_files.mix(rsem_seq_index).collect()
 
     output:
     set sample, file("*.{model,theta,ofg}") into rsem_em_outputs, rsem_model
@@ -1316,7 +1335,7 @@ process rsem_run_em {
 
     """
     rsem-run-em \\
-        "${RSEM}/${RSEM}" \\
+        "${params.genome}/${params.genome}" \\
         "${read_type}" \\
         "${sample}" \\
         "${sample}" \\
@@ -1338,7 +1357,7 @@ process rsem_run_gibbs {
 
     input:
     set sample, file("*"), file("*") from rsem_em_outputs.join(rsem_omit_info)
-    file "${RSEM}/*" from rsem_index_files.mix(rsem_seq_index).collect()
+    file "${params.genome}/*" from rsem_index_files.mix(rsem_seq_index).collect()
 
     output:
     set sample, file("${sample}.countvectors*") into rsem_count_vectors
@@ -1347,7 +1366,7 @@ process rsem_run_gibbs {
 
     """
     rsem-run-gibbs \\
-        "${RSEM}/${RSEM}" \\
+        "${params.genome}/${params.genome}" \\
         "${sample}" \\
         "${sample}" \\
         "${params.gibbs_burnin}" \\
@@ -1368,7 +1387,7 @@ process rsem_calc_ci {
 
     input:
     set sample, file("*"), file("*") from rsem_count_vectors.join(rsem_model)
-    file "${RSEM}/*" from rsem_index_files.mix(rsem_seq_index).collect()
+    file "${params.genome}/*" from rsem_index_files.mix(rsem_seq_index).collect()
 
     output:
     set sample, file("*.gene_res") into rsem_ci_gene_res
@@ -1376,7 +1395,7 @@ process rsem_calc_ci {
 
     """
     rsem-calculate-credibility-intervals \\
-        "${RSEM}/${RSEM}" \\
+        "${params.genome}/${params.genome}" \\
         "${sample}" \\
         "${sample}" \\
         "${params.ci_credibility_level}" \\
@@ -1794,14 +1813,14 @@ process rsem_tbam2gbam {
 
     input:
     set sample, file(transcript_bam) from rsem_tbam2gbam_inputs
-    file "${RSEM}/*" from rsem_index_files.mix(rsem_seq_index).collect()
+    file "${params.genome}/*" from rsem_index_files.mix(rsem_seq_index).collect()
 
     output:
     set sample, val('genome'), file("${sample}.genome.bam") into rsem_genome_bams
 
     """
     rsem-tbam2gbam \\
-        "${RSEM}/${RSEM}" \\
+        "${params.genome}/${params.genome}" \\
         "${transcript_bam}" \\
         "${sample}.genome.bam" \\
         -p "${task.cpus}"
@@ -2086,50 +2105,38 @@ def usage() {
 
     log.info"""
     Usage:
-        nextflow run ampatchlab/nf-rnaseq [options]
+        nextflow run -profile <profile> -revision <revision> ampatchlab/nf-rnaseq [options]
 
 
-    Required arguments:
+    Nextflow execution options:
 
         -profile STR
             Nextflow configuration profile to use. Available profiles include:
             'awsbatch', 'conda', 'docker' and 'singularity'
 
-        --csv FILE
-            Comma-separated list of sample and readgroup inputs
-
-        --genome STR
-            Reference genome name [Either: ${defaults.genomes.keySet().join(", ")}; Default: ${defaults.genome ?: null}]
-
-
-    Optional Nextflow arguments:
-
-        -name STR
-            Assign a mnemonic name to the a pipeline run
-
-        -resume
-            Resume a failed run using cached results
-
-        -revision
-            Revision of the project to run
+        -revision STR
+            Git branch/tag (version) of this workflow to use
 
         -work-dir DIR
             Directory where intermediate result files are stored
 
+        -help
+            Show additional execution options and exit
 
-    Optional pipeline arguments:
+
+    Input options:
+
+        --csv FILE
+            Comma-separated list of sample and readgroup inputs
 
         --paired_end
             Expect entries for 'fastq1' and 'fastq2' in the input CSV
 
-        --rgid_sep STR
-            The separator used to create unique input readgroup IDs [Default: ${defaults.rgid_sep}]
-
-        --adapters STR
-            The adapters to trim [Either: ${defaults.seq_adapters.keySet().join(", ")}; Default: ${defaults.adapters}]
-
 
     Reference genome options:
+
+        --genome STR
+            Reference genome name [Either: ${defaults.genomes.keySet().join(", ")}; Default: ${defaults.genome}]
 
         --fasta FILE
             Override the reference genome FASTA with FILE [Default: ${defaults.fasta ?: null}]
@@ -2138,6 +2145,43 @@ def usage() {
             Override the reference genome GTF with FILE [Default: ${defaults.gtf ?: null}]
 
 
+    Sequencing adapter options:
+
+        --adapters STR
+            The adapters to trim [Either: ${defaults.seq_adapters.keySet().join(", ")}; Default: ${defaults.adapters}]
+
+        --r1_adapter STR
+            Override the sequence of the R1 adapter with STR [Default: ${defaults.r1_adapter ?: null}]
+
+        --r2_adapter STR
+            Override the sequence of the R2 adapter with STR [Default: ${defaults.r2_adapter ?: null}]
+
+
+    Output options:
+
+        --refdir DIR
+            Path where the reference index files will be saved [Default: ${defaults.refdir}]
+
+        --outdir DIR
+            Path where the results will be saved [Default: ${defaults.outdir}]
+
+
+    Standard options:
+
+        --advanced
+            Show advanced usage and exit
+
+        --help
+            Show this message and exit
+
+        --version
+            Show the pipeline version and exit
+    """.stripIndent()
+}
+
+def advanced() {
+
+    log.info"""
     STAR genome generate options:
 
         --star_genome_chr_bin_n_bits INT
@@ -2149,13 +2193,8 @@ def usage() {
         --star_sjdb_overhang INT
             Length of the donor/acceptor sequence on each side of the junctions [Default: ${defaults.star_sjdb_overhang}]
 
+
     Cutadapt options:
-
-        --cutadapt_r1_adapter STR
-            Sequence of the R1 adapter [Default: ${defaults.seq_adapters[params.adapters].r1}]
-
-        --cutadapt_r2_adapter STR
-            Sequence of the R2 adapter [Default: ${defaults.seq_adapters[params.adapters].r2}]
 
         --cutadapt_base_qual_cutoff [INT,]INT
             Trim low-quality bases from each read [Default: ${defaults.cutadapt_base_qual_cutoff}]
@@ -2164,7 +2203,7 @@ def usage() {
             Discard reads shorter than INT [Default: ${defaults.cutadapt_base_qual_cutoff}]
 
 
-    RSEM mparams:
+    RSEM mparams options:
 
         --rsem_fragment_length_min INT
             Minimum read/insert length allowed [default: ${defaults.rsem_fragment_length_min}]
@@ -2232,15 +2271,6 @@ def usage() {
             MultiQC YAML config file [Default: ${defaults.multiqc_config}]
 
 
-    Output options:
-
-        --refdir DIR
-            Path where the reference index files will be saved [Default: ${defaults.refdir}]
-
-        --outdir DIR
-            Path where the results will be saved [Default: ${defaults.outdir}]
-
-
     Report options
 
         --execution_report STR
@@ -2263,15 +2293,6 @@ def usage() {
 
         --aws_region STR
             AWS Region definition [Default: ${defaults.aws_region}]
-
-
-    Standard options:
-
-        --help
-            Show this message and exit
-
-        --version
-            Show the pipeline version and exit
     """.stripIndent()
 }
 
@@ -2282,7 +2303,12 @@ def die() {
 
 def check_params() {
 
-    // standard options
+    // Standard options
+
+    if (params.advanced) {
+        advanced()
+        exit 0
+    }
 
     if (params.help) {
         usage()
@@ -2295,7 +2321,7 @@ def check_params() {
     }
 
 
-    // required arguments
+    // Required options
 
     if (!params.csv) {
         log.error("A list of samples and readgroups is required. Please use the `--csv` option.")
@@ -2308,20 +2334,15 @@ def check_params() {
     }
 
 
-    // reference genome options
+    // Reference genome options
 
-    if (params.genome && !(params.genome in params.genomes)) {
-        log.error("Unknown `--genome` entry: `${params.genome}`")
+    if (!params.genome) {
+        log.error("Please specify a value for `--genome`; can be one of ${params.genomes.keySet().join(", ")}")
         die()
     }
 
     params.fasta = params.genome ? params.genomes[ params.genome ].fasta : null
     params.gtf = params.genome ? params.genomes[ params.genome ].gtf : null
-
-    if (!params.genome && !params.fasta && !params.gtf) {
-        log.error("A reference genome is required. Please use the `--genome` option.")
-        die()
-    }
 
     if (!params.fasta) {
         log.error("A reference FASTA file is required. Please use the `--fasta` option.")
@@ -2330,6 +2351,27 @@ def check_params() {
 
     if (!params.gtf) {
         log.error("A reference GTF file is required. Please use the `--gtf` option.")
+        die()
+    }
+
+
+    // Sequencing adapter options
+
+    if (!params.adapters) {
+        log.error("Please specify a value for `--adapters`; can be one of ${params.seq_adapters.keySet().join(", ")}")
+        die()
+    }
+
+    params.r1_adapter = params.adapters ? params.seq_adapters[ params.adapters ].r1 : null
+    params.r2_adapter = params.adapters ? params.seq_adapters[ params.adapters ].r2 : null
+
+    if (!params.r1_adapter) {
+        log.error("An R1 adapter sequence is required. Please use the `--r1_adapter` option.")
+        die()
+    }
+
+    if (!params.r2_adapter) {
+        log.error("An R2 adapter sequence is required. Please use the `--r2_adapter` option.")
         die()
     }
 
@@ -2353,24 +2395,6 @@ def check_params() {
 
 
     // Cutadapt options
-
-    if (params.adapters && !(params.adapters in params.seq_adapters)) {
-        log.error("Unknown `--adapters` entry: `${params.adapters}`")
-        die()
-    }
-
-    params.cutadapt_r1_adapter = params.adapters ? params.seq_adapters[ params.adapters ].r1 : null
-    params.cutadapt_r2_adapter = params.adapters ? params.seq_adapters[ params.adapters ].r2 : null
-
-    if (params.cutadapt_r1_adapter && !(params.cutadapt_r1_adapter instanceof String)) {
-        log.error("Unknown `--cutadapt_r1_adapter` entry: `${params.cutadapt_r1_adapter}`")
-        die()
-    }
-
-    if (params.cutadapt_r2_adapter && !(params.cutadapt_r2_adapter instanceof String)) {
-        log.error("Unknown `--cutadapt_r2_adapter` entry: `${params.cutadapt_r2_adapter}`")
-        die()
-    }
 
     if (!(params.cutadapt_base_qual_cutoff.toString().isInteger())) {
 
@@ -2527,7 +2551,7 @@ def check_params() {
     }
 
 
-    // report options
+    // Report options
 
     if (!params.execution_report.toString().endsWith('.html')) {
         log.error("The filename specified using `--execution_report` must end with '.html'")
