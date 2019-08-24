@@ -15,21 +15,20 @@ phases:
     commands:
       - apt-get update -y
       - apt-get install -y graphviz
-  pre_build:
-    commands:
-      - aws s3 rm --quiet --recursive "$bucket"
   build:
     commands:
+      - export CAPSULE_LOG=none
       - curl -fsSL get.nextflow.io | bash
       - |
-        ./nextflow run . \
+        ./nextflow -Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2 run . \
           -ansi-log false \
           -profile awsbatch,HBR_UHR_ERCC-SE \
-          -work-dir "$bucket/work" \
-          --refdir "$bucket/reference" \
-          --outdir "$bucket/results" \
+          -work-dir "$bucket/$CODEBUILD_BUILD_ID/work" \
+          --refdir "$bucket/$CODEBUILD_BUILD_ID/reference" \
+          --outdir "$bucket/$CODEBUILD_BUILD_ID/results" \
           --aws_region "$AWS_DEFAULT_REGION" \
           --aws_queue "nf-rnaseq"
   post_build:
     commands:
-      - aws s3 sync --quiet ./reports "$bucket/reports"
+      - aws s3 sync --quiet ./reports "$bucket/$CODEBUILD_BUILD_ID/reports"
+      - aws s3 cp --quiet .nextflow.log "$bucket/$CODEBUILD_BUILD_ID/nextflow.log"
