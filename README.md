@@ -1,7 +1,7 @@
 # ampatchlab/nf-rnaseq
 
 [![Build Status](https://codebuild.ap-southeast-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiZDlTRGZ1VGI5K2pycll0RmdrVjVTc1UvenMzUjhoTTl3cmJKNDRLOTQzSk5UdFh3WTYweXhyNkhVYXFKbmF0MnVjTGRDSStZTktLSW5UenNNYmErV0FvPSIsIml2UGFyYW1ldGVyU3BlYyI6IjViUXRBOVBaamI1eWJGdkkiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)](https://ap-southeast-2.console.aws.amazon.com/codesuite/codebuild/projects/nf-rnaseq/history)
-[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
+[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A520.01.0-brightgreen.svg)](https://www.nextflow.io/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 RNA-Seq nextflow pipeline
